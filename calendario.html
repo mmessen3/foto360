@@ -1,79 +1,114 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reserva tu estadía</title>
-
-  <!-- Flatpickr CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-
+  <meta charset="UTF-8">
+  <title>Calendario con Precios</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      margin: 50px;
+      margin: 20px;
+      background-color: #f2f2f2;
     }
-    input {
-      font-size: 16px;
-      padding: 8px;
-      margin: 10px;
+
+    h1 {
+      margin-bottom: 10px;
     }
-    .precio {
-      margin-top: 20px;
-      font-size: 18px;
+
+    .calendario {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+
+    .dia {
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 5px;
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-radius: 6px;
+    }
+
+    .dia.ocupado {
+      background-color: #eee;
+      color: #aaa;
+    }
+
+    .numero {
       font-weight: bold;
+    }
+
+    .precio {
+      font-size: 14px;
+      color: #007bff;
+    }
+
+    .semana {
+      font-weight: bold;
+      background: #ddd;
     }
   </style>
 </head>
 <body>
 
-  <h1>Reserva tu estadía en Reñaca 🏖️</h1>
+  <h1>Agosto 2025</h1>
 
-  <label>Fecha de entrada:</label><br>
-  <input type="text" id="checkin" placeholder="Selecciona fecha"><br>
-
-  <label>Fecha de salida:</label><br>
-  <input type="text" id="checkout" placeholder="Selecciona fecha"><br>
-
-  <div class="precio" id="total"></div>
-
-  <!-- Flatpickr JS -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <div class="calendario" id="calendario">
+    <!-- Aquí se genera el calendario automáticamente -->
+  </div>
 
   <script>
-    const precioPorNoche = 60000; // CLP por noche
+    const diasDelMes = 31;
+    const primerDiaSemana = 5; // 0=domingo, 1=lunes... 5=viernes para 1 de agosto 2025
+    const precios = {
+      1: 75000, 2: 75000, 3: 65000, 4: 65000, 5: 65000,
+      6: 80000, 7: 80000, 8: 70000, 9: 70000, 10: 70000,
+      15: 90000, 16: 90000, 22: 90000, 23: 90000,
+      // Puedes llenar más precios específicos
+    };
+    const diasOcupados = [4, 5, 6, 20, 21, 22]; // días no disponibles
 
-    const checkin = flatpickr("#checkin", {
-      dateFormat: "Y-m-d",
-      minDate: "today",
-      onChange: function(selectedDates, dateStr, instance) {
-        checkout.set("minDate", dateStr);
-      }
+    const contenedor = document.getElementById('calendario');
+
+    const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    diasSemana.forEach(d => {
+      const div = document.createElement('div');
+      div.className = 'semana';
+      div.innerText = d;
+      contenedor.appendChild(div);
     });
 
-    const checkout = flatpickr("#checkout", {
-      dateFormat: "Y-m-d",
-      minDate: "today",
-      onChange: function(selectedDates, dateStr, instance) {
-        calcularPrecio();
-      }
-    });
+    // Rellenar espacios en blanco hasta el primer día del mes
+    for (let i = 0; i < primerDiaSemana; i++) {
+      contenedor.appendChild(document.createElement('div'));
+    }
 
-    function calcularPrecio() {
-      const entrada = new Date(document.getElementById("checkin").value);
-      const salida = new Date(document.getElementById("checkout").value);
+    for (let dia = 1; dia <= diasDelMes; dia++) {
+      const div = document.createElement('div');
+      div.className = 'dia';
+      if (diasOcupados.includes(dia)) div.classList.add('ocupado');
 
-      if (!isNaN(entrada) && !isNaN(salida) && salida > entrada) {
-        const diffTime = Math.abs(salida - entrada);
-        const noches = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const total = noches * precioPorNoche;
-        document.getElementById("total").innerText = `Total por ${noches} noche(s): $${total.toLocaleString("es-CL")}`;
-      } else {
-        document.getElementById("total").innerText = "";
-      }
+      const numero = document.createElement('div');
+      numero.className = 'numero';
+      numero.innerText = dia;
+
+      const precio = document.createElement('div');
+      precio.className = 'precio';
+      precio.innerText = precios[dia] ? `$${precios[dia].toLocaleString('es-CL')}` : '';
+
+      div.appendChild(numero);
+      div.appendChild(precio);
+      contenedor.appendChild(div);
     }
   </script>
 
 </body>
 </html>
+
+
