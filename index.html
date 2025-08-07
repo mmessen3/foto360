@@ -1,14 +1,14 @@
-<link rel="stylesheet" href="https://unpkg.com/photo-sphere-viewer@5/dist/photo-sphere-viewer.css" />
-<script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
-<script src="https://unpkg.com/photo-sphere-viewer@5/dist/photo-sphere-viewer.js"></script>
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-sky src="foto360.jpg" rotation="0 -130 0"></a-sky>
+    </a-scene>
+  </body>
+</html>
 
-<div id="viewer" style="width: 100%; height: 500px;"></div>
-
-<script>
-  const viewer = new PhotoSphereViewer.Viewer({
-    container: document.getElementById('viewer'),
-    panorama: 'foto360.jpg',
-  });
-</script>
 
 
