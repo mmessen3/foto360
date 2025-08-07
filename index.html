@@ -1,13 +1,52 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  </head>
-  <body>
-    <a-scene>
-      <a-sky src="foto360.jpg" rotation="0 -130 0"></a-sky>
-    </a-scene>
-  </body>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Visor 360° Interactivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Estilos del visor -->
+  <link rel="stylesheet" href="https://unpkg.com/photo-sphere-viewer@5/dist/photo-sphere-viewer.css" />
+  
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+    }
+    #viewer {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="viewer"></div>
+
+  <!-- Dependencias -->
+  <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/photo-sphere-viewer@5/dist/photo-sphere-viewer.js"></script>
+
+  <!-- Inicializar visor -->
+  <script>
+    const viewer = new PhotoSphereViewer.Viewer({
+      container: document.getElementById('viewer'),
+      panorama: 'foto360.jpg', // Asegúrate de tener esta imagen en el mismo directorio
+      defaultZoomLvl: 50,
+      mousewheel: {
+        enabled: true,
+        smooth: true,
+        zoomSpeed: 1.5, // puedes ajustar esto
+      },
+      touchmoveTwoFingers: false,
+      navbar: [
+        'zoom',
+        'fullscreen',
+        'caption',
+      ],
+    });
+  </script>
+</body>
 </html>
 
 
