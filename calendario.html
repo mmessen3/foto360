@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva tu estadía</title>
+
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    input {
+      font-size: 16px;
+      padding: 8px;
+      margin: 10px;
+    }
+    .precio {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Reserva tu estadía en Reñaca 🏖️</h1>
+
+  <label>Fecha de entrada:</label><br>
+  <input type="text" id="checkin" placeholder="Selecciona fecha"><br>
+
+  <label>Fecha de salida:</label><br>
+  <input type="text" id="checkout" placeholder="Selecciona fecha"><br>
+
+  <div class="precio" id="total"></div>
+
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <script>
+    const precioPorNoche = 60000; // CLP por noche
+
+    const checkin = flatpickr("#checkin", {
+      dateFormat: "Y-m-d",
+      minDate: "today",
+      onChange: function(selectedDates, dateStr, instance) {
+        checkout.set("minDate", dateStr);
+      }
+    });
+
+    const checkout = flatpickr("#checkout", {
+      dateFormat: "Y-m-d",
+      minDate: "today",
+      onChange: function(selectedDates, dateStr, instance) {
+        calcularPrecio();
+      }
+    });
+
+    function calcularPrecio() {
+      const entrada = new Date(document.getElementById("checkin").value);
+      const salida = new Date(document.getElementById("checkout").value);
+
+      if (!isNaN(entrada) && !isNaN(salida) && salida > entrada) {
+        const diffTime = Math.abs(salida - entrada);
+        const noches = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const total = noches * precioPorNoche;
+        document.getElementById("total").innerText = `Total por ${noches} noche(s): $${total.toLocaleString("es-CL")}`;
+      } else {
+        document.getElementById("total").innerText = "";
+      }
+    }
+  </script>
+
+</body>
+</html>
