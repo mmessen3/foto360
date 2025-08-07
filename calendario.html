@@ -2,14 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Calendario con Precios</title>
+  <title>Reserva tu estadía</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       margin: 20px;
-      background-color: #f2f2f2;
+      background: #f9f9f9;
     }
 
     h1 {
@@ -24,7 +24,7 @@
       margin: 20px auto;
     }
 
-    .dia {
+    .dia, .semana {
       background-color: white;
       border: 1px solid #ccc;
       padding: 5px;
@@ -32,12 +32,24 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      align-items: center;
       border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .dia.seleccionado {
+      background-color: #cce5ff;
+      border-color: #007bff;
+    }
+
+    .dia.rango {
+      background-color: #e7f0ff;
     }
 
     .dia.ocupado {
       background-color: #eee;
       color: #aaa;
+      pointer-events: none;
     }
 
     .numero {
@@ -50,31 +62,59 @@
     }
 
     .semana {
-      font-weight: bold;
       background: #ddd;
+      font-weight: bold;
+      height: auto;
+    }
+
+    #resumen {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background-color: #ccc;
     }
   </style>
 </head>
 <body>
 
-  <h1>Agosto 2025</h1>
+  <h1>Reserva tu estadía – Agosto 2025</h1>
 
-  <div class="calendario" id="calendario">
-    <!-- Aquí se genera el calendario automáticamente -->
-  </div>
+  <div class="calendario" id="calendario"></div>
+
+  <div id="resumen"></div>
+  <button id="reservarBtn" disabled onclick="reservar()">Reservar ahora</button>
 
   <script>
     const diasDelMes = 31;
-    const primerDiaSemana = 5; // 0=domingo, 1=lunes... 5=viernes para 1 de agosto 2025
+    const primerDiaSemana = 5; // viernes 1 de agosto 2025
     const precios = {
-      1: 75000, 2: 75000, 3: 65000, 4: 65000, 5: 65000,
+      1: 70000, 2: 70000, 3: 65000, 4: 65000, 5: 65000,
       6: 80000, 7: 80000, 8: 70000, 9: 70000, 10: 70000,
-      15: 90000, 16: 90000, 22: 90000, 23: 90000,
-      // Puedes llenar más precios específicos
+      11: 68000, 12: 68000, 13: 75000, 14: 75000,
+      15: 90000, 16: 90000, 17: 75000, 18: 75000,
+      22: 90000, 23: 90000, 24: 70000
     };
-    const diasOcupados = [4, 5, 6, 20, 21, 22]; // días no disponibles
+    const diasOcupados = [4, 5, 6, 20, 21, 22];
+
+    let checkin = null;
+    let checkout = null;
 
     const contenedor = document.getElementById('calendario');
+    const resumen = document.getElementById('resumen');
+    const reservarBtn = document.getElementById('reservarBtn');
 
     const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
     diasSemana.forEach(d => {
@@ -84,7 +124,6 @@
       contenedor.appendChild(div);
     });
 
-    // Rellenar espacios en blanco hasta el primer día del mes
     for (let i = 0; i < primerDiaSemana; i++) {
       contenedor.appendChild(document.createElement('div'));
     }
@@ -93,6 +132,7 @@
       const div = document.createElement('div');
       div.className = 'dia';
       if (diasOcupados.includes(dia)) div.classList.add('ocupado');
+      div.dataset.dia = dia;
 
       const numero = document.createElement('div');
       numero.className = 'numero';
@@ -105,9 +145,60 @@
       div.appendChild(numero);
       div.appendChild(precio);
       contenedor.appendChild(div);
+
+      div.addEventListener('click', () => seleccionarFecha(dia));
+    }
+
+    function seleccionarFecha(dia) {
+      if (!checkin || (checkin && checkout)) {
+        checkin = dia;
+        checkout = null;
+      } else if (dia > checkin) {
+        checkout = dia;
+      } else {
+        checkin = dia;
+        checkout = null;
+      }
+      renderSeleccion();
+    }
+
+    function renderSeleccion() {
+      const dias = document.querySelectorAll('.dia');
+      dias.forEach(d => {
+        const dnum = parseInt(d.dataset.dia);
+        d.classList.remove('seleccionado', 'rango');
+        if (dnum === checkin || dnum === checkout) d.classList.add('seleccionado');
+        if (checkin && checkout && dnum > checkin && dnum < checkout) d.classList.add('rango');
+      });
+
+      if (checkin && checkout) {
+        let total = 0;
+        let valid = true;
+        for (let d = checkin; d < checkout; d++) {
+          if (diasOcupados.includes(d)) valid = false;
+          total += precios[d] || 0;
+        }
+
+        if (!valid) {
+          resumen.innerText = "⚠️ Hay fechas no disponibles en el rango seleccionado.";
+          reservarBtn.disabled = true;
+        } else {
+          resumen.innerText = `Reserva del ${checkin} al ${checkout} de agosto.\nTotal: $${total.toLocaleString("es-CL")}`;
+          reservarBtn.disabled = false;
+        }
+      } else {
+        resumen.innerText = '';
+        reservarBtn.disabled = true;
+      }
+    }
+
+    function reservar() {
+      alert(`Reserva confirmada del ${checkin} al ${checkout} de agosto 🏖️`);
+      // Aquí puedes redirigir a WhatsApp o enviar datos a un servidor
     }
   </script>
 
 </body>
 </html>
+
 
